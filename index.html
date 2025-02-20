@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Registros</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        nav {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            display: inline-block;
+            background-color: #1E3A8A;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #1E3A8A;
+            transform: scale(1.05);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="date"] {
+            cursor: pointer;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        button {
+            display: inline-block;
+            background-color: #1E3A8A;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #1E3A8A;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="container">
+        <h2>Formulário</h2>
+        <form id="formDiagnostico">
+            <label for="assessor">Assessor:</label>
+            <input type="text" id="assessor" name="assessor" required>
+
+            <label for="data">Data:</label>
+            <input type="date" id="data" name="data" required>
+
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+
+            <label for="contato">Contato:</label>
+            <input type="text" id="contato" name="contato" required>
+
+            <label for="oficio">Ofício:</label>
+            <input type="text" id="oficio" name="oficio" placeholder="Ex: Pastor, Líder Comunitário ou Morador" required>
+
+            <label for="endereco">Endereço:</label> <!-- Alterado de Bairro para Endereço -->
+            <input type="text" id="endereco" name="endereco" placeholder="Ex: Centro, Rua do Imperador, 123" required>
+
+            <label for="assunto">Assunto:</label>
+            <textarea id="assunto" name="assunto" rows="4" required></textarea>
+
+            <button type="submit">Concluir</button>
+        </form>
+    </div>
+
+    <script type="module">
+        // Importando funções necessárias do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js";
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDiC4oMxGofdMXSqQbf6mHua0dLafYrdlU",
+            authDomain: "formulario-27b90.firebaseapp.com",
+            projectId: "formulario-27b90",
+            storageBucket: "formulario-27b90.firebasestorage.app",
+            messagingSenderId: "540452486205",
+            appId: "1:540452486205:web:e6c49369e7578a54863e54",
+            measurementId: "G-0TRRZ97998"
+        };
+
+        // Inicializando o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Função para cadastrar dados no Firestore
+        document.getElementById("formDiagnostico").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const assessor = document.getElementById("assessor").value;
+            const data = document.getElementById("data").value;
+            const nome = document.getElementById("nome").value;
+            const contato = document.getElementById("contato").value;
+            const oficio = document.getElementById("oficio").value;
+            const endereco = document.getElementById("endereco").value;
+            const assunto = document.getElementById("assunto").value;
+
+            try {
+                const docRef = await addDoc(collection(db, "FORM_WB"), {
+                    assessor: assessor,
+                    data: data,
+                    nome: nome,
+                    contato: contato,
+                    oficio: oficio,
+                    endereco: endereco,  // Substituindo Bairro por Endereço
+                    assunto: assunto
+                });
+                console.log("Documento adicionado com ID: ", docRef.id);
+                alert("Registro salvo com sucesso!");
+                this.reset();
+            } catch (error) {
+                console.error("Erro ao salvar o registro: ", error);
+                alert("Erro ao salvar registro.");
+            }
+        });
+
+        
+    </script>
+</body>
+</html>
