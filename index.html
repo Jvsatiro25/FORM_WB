@@ -94,7 +94,6 @@
 </head>
 <body>
 
-
     <div class="container">
         <h2>Formulário</h2>
         <form id="formDiagnostico">
@@ -113,37 +112,44 @@
             <label for="oficio">Ofício:</label>
             <input type="text" id="oficio" name="oficio" placeholder="Ex: Pastor, Líder Comunitário ou Morador" required>
 
-            <label for="endereco">Endereço:</label> <!-- Alterado de Bairro para Endereço -->
+            <label for="endereco">Endereço:</label>
             <input type="text" id="endereco" name="endereco" placeholder="Ex: Centro, Rua do Imperador, 123" required>
 
             <label for="assunto">Assunto:</label>
-            <textarea id="assunto" name="assunto" rows="4" required></textarea>
+            <textarea id="assunto" name="assunto" rows="4" ></textarea >
+
+            <label for="arquivo">Anexar Arquivo:</label>
+            <input type="file" id="arquivo" name="arquivo">
 
             <button type="submit">Concluir</button>
         </form>
     </div>
 
     <script type="module">
-        // Importando funções necessárias do Firebase
+        // ------------------------------------------------ INTERAÇÃO COM O FIREBASE ----------------------------------------------------------------------------------------------------- //
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-storage.js";
 
         // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDiC4oMxGofdMXSqQbf6mHua0dLafYrdlU",
             authDomain: "formulario-27b90.firebaseapp.com",
             projectId: "formulario-27b90",
-            storageBucket: "formulario-27b90.firebasestorage.app",
+            storageBucket: "formulario-27b90.appspot.com",
             messagingSenderId: "540452486205",
             appId: "1:540452486205:web:e6c49369e7578a54863e54",
             measurementId: "G-0TRRZ97998"
         };
 
-        // Inicializando o Firebase
+        // Inicializando Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
-        // Função para cadastrar dados no Firestore
+        
+
+        // Evento de envio do formulário
         document.getElementById("formDiagnostico").addEventListener("submit", async function(event) {
             event.preventDefault();
 
@@ -154,27 +160,46 @@
             const oficio = document.getElementById("oficio").value;
             const endereco = document.getElementById("endereco").value;
             const assunto = document.getElementById("assunto").value;
+            const file = document.getElementById("arquivo").files[0]; // Pegando o arquivo
+            console.log(file);  // Verifique o conteúdo do arquivo
+
+            let arquivoURL = "";
+            
+            if (file) {
+                arquivoURL = await uploadArquivoParaStorage(file);  // Chama a função para fazer o upload
+            }
 
             try {
+                // Salva os dados no Firestore
                 const docRef = await addDoc(collection(db, "FORM_WB"), {
                     assessor: assessor,
                     data: data,
                     nome: nome,
                     contato: contato,
                     oficio: oficio,
-                    endereco: endereco,  // Substituindo Bairro por Endereço
-                    assunto: assunto
+                    endereco: endereco,
+                    assunto: assunto,
+                    arquivoURL: arquivoURL,  // URL do arquivo enviado
+                    timestamp: serverTimestamp()
                 });
+
                 console.log("Documento adicionado com ID: ", docRef.id);
                 alert("Registro salvo com sucesso!");
-                this.reset();
+                this.reset();  // Reseta o formulário após o envio
             } catch (error) {
                 console.error("Erro ao salvar o registro: ", error);
                 alert("Erro ao salvar registro.");
             }
+
         });
 
-        
     </script>
+    
+    
+
+   
+
+
+
 </body>
 </html>
